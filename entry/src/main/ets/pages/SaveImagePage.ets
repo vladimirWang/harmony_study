@@ -23,6 +23,12 @@ import fileIO from '@ohos.fileio';
 const fileUri = '/data/storage/el2/base/haps/entry/cache/1746424548313.jpg'
 const imgUrl = "https://img0.baidu.com/it/u=2022198414,861209178&fm=253&fmt=auto&app=138&f=JPEG?w=949&h=475"
 const filePath = 'file://media/Photo/1/IMG_1746426130_000/1746424548313.jpg'
+
+
+@Builder
+function dialog() {
+  Text("dialog")
+}
 async function saveImageToLocal(pixelMap: image.PixelMap) {
   const ctx = getContext()
   const imagePath = ctx.cacheDir + '/' + Date.now() + '.jpg'
@@ -41,6 +47,7 @@ async function saveImageToLocal(pixelMap: image.PixelMap) {
 @Entry
 @Component
 struct SaveImagePage {
+  @State visible: boolean = false;
   saveButtonOptions: SaveButtonOptions = {
     icon: SaveIconStyle.FULL_FILLED,
     text: SaveDescription.SAVE_IMAGE,
@@ -96,11 +103,13 @@ struct SaveImagePage {
             const pixelMap = await imageSource.createPixelMap(options)
             console.log("fetch image success: ", pixelMap)
             saveImageToLocal(pixelMap)
+            // await pixelMap.release()
+            console.log("release success")
             this.pic2 = pixelMap
           }
         })
       })
-
+      Image($r("sys.media.person_shield")).width(60).height(60)
       SaveButton(this.saveButtonOptions) // 创建安全控件按钮。
         .onClick(async (event, result: SaveButtonOnClickResult) => {
           if (result == SaveButtonOnClickResult.SUCCESS) {
@@ -112,13 +121,29 @@ struct SaveImagePage {
               let assetChangeRequest: photoAccessHelper.MediaAssetChangeRequest = photoAccessHelper.MediaAssetChangeRequest.createImageAssetRequest(context, fileUri);
               await phAccessHelper.applyChanges(assetChangeRequest);
               console.info('create asset successfully, uri: ' + assetChangeRequest.getAsset().uri);
+              promptAction.showToast({
+                message: '图片保存到相册'
+              })
             } catch (err) {
+              promptAction.showToast({
+                message: '图片保存到相册失败: err' + err.message
+              })
               console.error(`create asset failed with error: ${err.code}, ${err.message}`);
             }
           } else {
+            promptAction.showToast({
+              message: 'SaveButtonOnClickResult create asset failed'
+            })
             console.error('SaveButtonOnClickResult create asset failed');
           }
         })
+
+      Button("bindsheet").onClick(() => {
+        this.visible = true;
+      }).bindSheet($$this.visible, dialog, {
+          height: 500,
+        backgroundColor: Color.Orange
+      })
     }
   }
 }
