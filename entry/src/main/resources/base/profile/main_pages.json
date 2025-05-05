@@ -1,0 +1,11 @@
+{
+  "src": [
+    "pages/Login",
+    "pages/Index",
+    "pages/SecondAbilityPage",
+    "pages/Todos",
+    "pages/PageTestV2",
+    "pages/TestNavigation",
+    "pages/SaveImagePage"
+  ]
+}
